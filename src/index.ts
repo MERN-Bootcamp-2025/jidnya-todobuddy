@@ -1,13 +1,27 @@
-import express from 'express';
-import { AppDataSource } from './config/database';
+import express from "express";
+import authRoutes from "./routes/auth.routes";
+import { AppDataSource } from "./config/database";
+import dotenv from "dotenv";
 import "reflect-metadata";
-// import dotenv from 'dotenv';
+import { admin } from "./superAdmin/super.admin";
 
-const app = express()
-app.use(express.json());
-AppDataSource.initialize().then(() => {
-    console.log('Database connected successfully!');
-    app.listen(process.env.PORT, () => {
-        console.log(`server start on port no ${process.env.PORT}`);
+dotenv.config();
+(async () => {
+  try {
+    await AppDataSource.initialize();
+    console.log("Database connected successfully!");
+    await admin();
+    const app = express();
+    app.use(express.json());
+
+    // routes
+    app.use("/api", authRoutes);
+
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server started on http://localhost:${PORT}`);
     });
-}).catch((error) => console.error('Error connecting to database:', error));
+  } catch (error) {
+    console.error("Error starting server:", error);
+  }
+})();
