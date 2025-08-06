@@ -16,6 +16,9 @@ router.get("/todos/:id", authenticateJWT, TodoController.getTodoById);
 //update todo by id
 router.put("/todos/:id", authenticateJWT, TodoController.updateTodo); 
 
+//partial updating todo
+router.patch('/todos/:id', authenticateJWT, TodoController.patchTodo);
+
 //soft delete
 router.delete("/todos/:id", authenticateJWT, TodoController.softDeleteTodo);
 

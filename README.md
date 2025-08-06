@@ -57,6 +57,9 @@ json:
    "email": "ashish.arora@mindbowser.com",
    "role": "admin"
  }
+ headers:
+Key: Authorization      Value: Bearer <JWT_TOKEN>
+Key: Content-Type       Value: application/json
 
 ##### Login using email and password received #####
 
@@ -84,7 +87,10 @@ Description: Listing todos with pagination
 ## 5.7. GET - /api/todos?status=todo&priority=high&title=grocery&page=1&limit=6
 Description: Listing todos with filtering and searching
 
-## 5.8. PUT - /api/todos/user-id
+## 5.8. GET - /api/todos/todo-id
+Description: Get details of a single Todo
+
+## 5.8. PUT - /api/todos/todo-id
 Description: Update a Todo (all fields)
 json: 
 {
@@ -95,3 +101,13 @@ json:
   "expected_completion_at": "2025-08-10T00:00:00.000Z",
   "user_id": "user-id"
 }
+
+## 5.9. PATCH - /api/todos/todo-id
+Description: Partially update fields of a Todo
+json:
+{
+    "status": "todo"
+}
+
+## 5.10. DELETE - /api/todos/todo-id
+Description: Soft delete a Todo

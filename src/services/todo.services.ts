@@ -1,11 +1,18 @@
 import { AppDataSource } from "../config/database";
 import { CreateTodoDto } from "../dtos/todo.dto";
 import { Todo } from "../models/Todo";
-import { ILike, Repository, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import {
+  ILike,
+  Repository,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from "typeorm";
 
 export class TodoService {
   private todoRepo: Repository<Todo> = AppDataSource.getRepository(Todo);
 
+  // POST 
   public async createTodo(dto: CreateTodoDto): Promise<Todo> {
     try {
       const todo = this.todoRepo.create({
@@ -20,11 +27,14 @@ export class TodoService {
       return await this.todoRepo.save(todo);
     } catch (error) {
       throw new Error(
-        `Failed to create todo: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to create todo: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
   }
 
+  // GET all
   public async getTodos(userId: string, query: any) {
     try {
       const {
@@ -47,7 +57,10 @@ export class TodoService {
       if (title) where.title = ILike(`%${title}%`);
 
       if (from_date && to_date) {
-        where.expected_completion_at = Between(new Date(from_date), new Date(to_date));
+        where.expected_completion_at = Between(
+          new Date(from_date),
+          new Date(to_date)
+        );
       } else if (from_date) {
         where.expected_completion_at = MoreThanOrEqual(new Date(from_date));
       } else if (to_date) {
@@ -56,7 +69,7 @@ export class TodoService {
 
       const [todos, totalItems] = await this.todoRepo.findAndCount({
         where,
-        order: { created_at: 'DESC' },
+        order: { created_at: "DESC" },
         skip: (page - 1) * limit,
         take: limit,
       });
@@ -70,11 +83,14 @@ export class TodoService {
       };
     } catch (error) {
       throw new Error(
-        `Failed to fetch todos: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to fetch todos: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
   }
 
+  //GET by id
   public async getTodoById(userId: string, id: string): Promise<Todo | null> {
     try {
       return await this.todoRepo.findOne({
@@ -86,12 +102,19 @@ export class TodoService {
       });
     } catch (error) {
       throw new Error(
-        `Failed to fetch todo by id: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to fetch todo by id: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
   }
 
-  public async updateTodo(userId: string, todoId: string, dto: CreateTodoDto): Promise<Todo | null> {
+  // PUT
+  public async updateTodo(
+    userId: string,
+    todoId: string,
+    dto: CreateTodoDto
+  ): Promise<Todo | null> {
     try {
       const todo = await this.todoRepo.findOne({
         where: {
@@ -107,12 +130,42 @@ export class TodoService {
       return await this.todoRepo.save(todo);
     } catch (error) {
       throw new Error(
-        `Failed to update todo: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to update todo: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
   }
 
-  public async softDeleteTodo(userId: string, todoId: string): Promise<boolean> {
+  // PATCH
+  public async updatePartialTodo(
+    userId: string,
+    todoId: string,
+    dto: Partial<CreateTodoDto>
+  ): Promise<Todo | null> {
+    const todo = await this.todoRepo.findOneBy({
+      id: todoId,
+      user_id: userId,
+      is_deleted: false,
+    });
+
+    if (!todo) return null;
+
+    Object.assign(todo, dto); //for only those that needs updation
+
+    if (dto.expected_completion_at) {
+      //converting into date
+      todo.expected_completion_at = new Date(dto.expected_completion_at);
+    }
+
+    return await this.todoRepo.save(todo);
+  }
+
+  // DELETE
+  public async softDeleteTodo(
+    userId: string,
+    todoId: string
+  ): Promise<boolean> {
     try {
       const todo = await this.todoRepo.findOne({
         where: {
@@ -129,7 +182,9 @@ export class TodoService {
       return true;
     } catch (error) {
       throw new Error(
-        `Failed to soft delete todo: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to soft delete todo: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
   }
