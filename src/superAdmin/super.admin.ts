@@ -1,5 +1,5 @@
 import { AppDataSource } from "../config/database";
-import { User } from "../models/User";
+import { User, UserRole } from "../models/User";
 import bcrypt from "bcrypt";
 
 export const admin = async () => {
@@ -14,7 +14,7 @@ export const admin = async () => {
     name: "Default Admin",
     email: "admin@todobody.com",
     password_hash,
-    role: "admin",
+    role: UserRole.ADMIN,
   });
 
   await userRepo.save(admin);

@@ -9,6 +9,11 @@ import {
 
 import { Todo } from './Todo';
 
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -23,8 +28,12 @@ export class User {
   @Column({ type: 'varchar', length: 255 })
   password_hash!: string;
 
-  @Column({ type: 'varchar', length: 20, default: 'user' })
-  role!: 'admin' | 'user';
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role!: UserRole;
 
   @Column({ type: 'uuid', nullable: true })
   invited_by!: string | null;
@@ -34,7 +43,7 @@ export class User {
 
   @UpdateDateColumn()
   updated_at!: Date;
-  
+
   @OneToMany(() => Todo, (todo) => todo.user)
   todos!: Todo[];
 }

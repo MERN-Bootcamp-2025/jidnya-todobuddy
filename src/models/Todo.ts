@@ -9,6 +9,21 @@ import {
 
 import { User } from './User';
 
+export enum TodoStatus {
+  TODO = 'todo',
+  IN_PROGRESS = 'in progress',
+  ON_HOLD = 'on hold',
+  DONE = 'done',
+  WILL_NOT_DO = 'will not do',
+}
+
+export enum TodoPriority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical',
+}
+
 @Entity('todos')
 export class Todo {
   @PrimaryGeneratedColumn('uuid')
@@ -21,18 +36,18 @@ export class Todo {
   description!: string;
 
   @Column({
-    type: 'varchar',
-    length: 50,
-    default: 'todo',
+    type: 'enum',
+    enum: TodoStatus,
+    default: TodoStatus.TODO,
   })
-  status!: 'todo' | 'in progress' | 'on hold' | 'done' | 'will not do';
+  status!: TodoStatus;
 
   @Column({
-    type: 'varchar',
-    length: 20,
-    default: 'medium',
+    type: 'enum',
+    enum: TodoPriority,
+    default: TodoPriority.MEDIUM,
   })
-  priority!: 'low' | 'medium' | 'high' | 'critical';
+  priority!: TodoPriority;
 
   @Column({ type: 'timestamp', nullable: true })
   expected_completion_at!: Date | null;
@@ -48,7 +63,7 @@ export class Todo {
 
   @CreateDateColumn()
   created_at!: Date;
-  
+
   @UpdateDateColumn()
   updated_at!: Date;
 }
